@@ -1,0 +1,116 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' =========================
+' Public Facade
+' =========================
+class ExpressionEngine {
+    +Evaluate(input : string) : double
+}
+
+' =========================
+' Lexing
+' =========================
+enum TokenType {
+    NUMBER
+    PLUS
+    MINUS
+    MULTIPLY
+    DIVIDE
+    LEFT_PAREN
+    RIGHT_PAREN
+    EOF
+}
+
+class Token {
+    +Type : TokenType
+    +Lexeme : string
+    +NumericValue : double
+    +Position : int
+}
+
+class Lexer {
+    -input : string
+    -position : int
+    +Tokenize() : List<Token>
+}
+
+' =========================
+' Parsing
+' =========================
+class Parser {
+    -tokens : List<Token>
+    -current : int
+    +Parse() : ExpressionNode
+}
+
+class Grammar <<documentation>>
+
+' =========================
+' AST
+' =========================
+abstract class ExpressionNode
+
+class LiteralExpression {
+    +Value : double
+}
+
+class UnaryExpression {
+    +Operator : TokenType
+    +Operand : ExpressionNode
+}
+
+class BinaryExpression {
+    +Operator : TokenType
+    +Left : ExpressionNode
+    +Right : ExpressionNode
+}
+
+' =========================
+' Evaluation
+' =========================
+class Evaluator {
+    +Evaluate(node : ExpressionNode) : double
+}
+
+' =========================
+' Errors
+' =========================
+class LexicalException
+class ParseException
+class EvaluationException
+
+' =========================
+' Relationships
+' =========================
+
+' Facade uses
+ExpressionEngine --> Lexer
+ExpressionEngine --> Parser
+ExpressionEngine --> Evaluator
+
+' Lexing
+Lexer *-- Token
+
+' Parsing
+Parser o-- Token
+Parser *-- ExpressionNode
+
+' AST inheritance
+ExpressionNode <|-- LiteralExpression
+ExpressionNode <|-- UnaryExpression
+ExpressionNode <|-- BinaryExpression
+
+' AST composition
+UnaryExpression *-- ExpressionNode
+BinaryExpression *-- ExpressionNode
+
+' Evaluation dependency
+Evaluator --> ExpressionNode
+
+' Error dependencies
+Lexer ..> LexicalException
+Parser ..> ParseException
+Evaluator ..> EvaluationException
+
+@enduml

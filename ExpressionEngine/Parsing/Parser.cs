@@ -1,10 +1,11 @@
-﻿namespace ExpressionEngine.Parsing
+﻿using ExpressionEngine.Ast;
+using ExpressionEngine.Errors;
+using ExpressionEngine.Lexing;
+using ExpressionEngine.Logging;
+using System.Collections.Generic;
+
+namespace ExpressionEngine.Parsing
 {
-    using Ast;
-    using Errors;
-    using Logging;
-    using Lexing;
-    using System.Collections.Generic;
 
     /// <summary>
     /// Recursive-descent parser that builds an AST from tokens.

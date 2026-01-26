@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ExpressionEngine.Logging
+﻿namespace ExpressionEngine.Logging
 {
     /// <summary>
     /// Simple console-based logger for development and debugging.

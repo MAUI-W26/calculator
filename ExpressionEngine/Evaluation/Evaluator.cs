@@ -1,10 +1,10 @@
-﻿namespace ExpressionEngine.Evaluation
-{
-    using Ast;
-    using Errors;
-    using Logging;
-    using Lexing;
+﻿using ExpressionEngine.Ast;
+using ExpressionEngine.Errors;
+using ExpressionEngine.Lexing;
+using ExpressionEngine.Logging;
 
+namespace ExpressionEngine.Evaluation
+{
     /// <summary>
     /// Evaluates an AST using recursive tree walking.
     /// </summary>

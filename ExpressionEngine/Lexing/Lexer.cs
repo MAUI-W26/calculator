@@ -1,9 +1,10 @@
-﻿namespace ExpressionEngine.Lexing
+﻿using ExpressionEngine.Errors;
+using ExpressionEngine.Logging;
+using System.Collections.Generic;
+using System.Globalization;
+
+namespace ExpressionEngine.Lexing
 {
-    using Errors;
-    using Logging;
-    using System.Collections.Generic;
-    using System.Globalization;
 
     /// <summary>
     /// Converts raw input text into a sequence of tokens.

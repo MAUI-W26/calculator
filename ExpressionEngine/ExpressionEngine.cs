@@ -1,7 +1,7 @@
-﻿using ExpressionEngine.Logging;
+﻿using ExpressionEngine.Evaluation;
 using ExpressionEngine.Lexing;
+using ExpressionEngine.Logging;
 using ExpressionEngine.Parsing;
-using ExpressionEngine.Evaluation;
 
 namespace ExpressionEngine
 {

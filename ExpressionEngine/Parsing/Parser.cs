@@ -6,7 +6,6 @@ using System.Collections.Generic;
 
 namespace ExpressionEngine.Parsing
 {
-
     /// <summary>
     /// Recursive-descent parser that builds an AST from tokens.
     /// Implements operator precedence through grammar structure.
@@ -54,19 +53,19 @@ namespace ExpressionEngine.Parsing
             return node;
         }
 
-        // term → factor ((* | /) factor)*
+        // term → unary ((* | /) unary)*
         private ExpressionNode ParseTerm()
         {
             _logger.Trace("Enter <term>");
 
-            var node = ParseFactor();
+            var node = ParseUnary();
 
             while (Match(TokenType.MULTIPLY, TokenType.DIVIDE))
             {
                 var op = Previous();
                 _logger.Debug($"Parsed multiplicative operator {op.Type}");
 
-                var right = ParseFactor();
+                var right = ParseUnary();
                 node = new BinaryExpression(op.Type, node, right);
             }
 
@@ -74,10 +73,25 @@ namespace ExpressionEngine.Parsing
             return node;
         }
 
-        // factor → NUMBER | "(" expr ")" | unary
-        private ExpressionNode ParseFactor()
+        // unary → (+ | -) unary | primary
+        private ExpressionNode ParseUnary()
         {
-            _logger.Trace("Enter <factor>");
+            if (Match(TokenType.PLUS, TokenType.MINUS))
+            {
+                var op = Previous();
+                _logger.Debug($"Parsed unary operator {op.Type}");
+
+                var operand = ParseUnary();
+                return new UnaryExpression(op.Type, operand);
+            }
+
+            return ParsePrimary();
+        }
+
+        // primary → NUMBER | "(" expr ")"
+        private ExpressionNode ParsePrimary()
+        {
+            _logger.Trace("Enter <primary>");
 
             if (Match(TokenType.NUMBER))
             {
@@ -95,21 +109,6 @@ namespace ExpressionEngine.Parsing
 
                 _logger.Debug("Parsed ')' closing sub-expression");
                 return expr;
-            }
-
-            return ParseUnary();
-        }
-
-        // unary → (+ | -) factor
-        private ExpressionNode ParseUnary()
-        {
-            if (Match(TokenType.PLUS, TokenType.MINUS))
-            {
-                var op = Previous();
-                _logger.Debug($"Parsed unary operator {op.Type}");
-
-                var operand = ParseUnary();
-                return new UnaryExpression(op.Type, operand);
             }
 
             throw new ParseException("Expected expression", Peek().Position);

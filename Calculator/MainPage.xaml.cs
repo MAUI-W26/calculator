@@ -5,7 +5,8 @@ namespace Calculator;
 
 public partial class MainPage : ContentPage
 {
-    private readonly ExpressionEngine.ExpressionEngine _engine = new();
+    private readonly ExpressionEngine.ExpressionEngine _engine =
+        new ExpressionEngine.ExpressionEngine(new ExpressionEngine.Logging.Logger());
 
     private string _currentInput = "0";
     private string _expression = "";
@@ -36,14 +37,11 @@ public partial class MainPage : ContentPage
                     break;
 
                 case "%":
-                    _currentInput = (double.Parse(_currentInput) / 100).ToString();
+                    ApplyPercent();
                     break;
 
                 case "1/x":
-                    if (_currentInput == "0")
-                        throw new DivideByZeroException();
-
-                    _currentInput = (1 / double.Parse(_currentInput)).ToString();
+                    ApplyInverse();
                     break;
 
                 case "+":
@@ -63,7 +61,7 @@ public partial class MainPage : ContentPage
                         _currentInput = "0.";
                         _awaitingNextNumber = false;
                     }
-                    else if (!_currentInput.Contains("."))
+                    else if (!Unwrap(_currentInput).Contains("."))
                     {
                         _currentInput += ".";
                     }
@@ -84,14 +82,16 @@ public partial class MainPage : ContentPage
         UpdateDisplay();
     }
 
-    //========================================================= Helpers =========================================================//
+    //========================================================= Core =========================================================//
 
     private void AppendDigit(string digit)
     {
         if (_justEvaluated)
         {
             _expression = "";
+            _currentInput = digit;
             _justEvaluated = false;
+            return;
         }
 
         if (_awaitingNextNumber)
@@ -101,9 +101,11 @@ public partial class MainPage : ContentPage
             return;
         }
 
-        _currentInput = _currentInput == "0"
+        var raw = Unwrap(_currentInput);
+
+        _currentInput = raw == "0"
             ? digit
-            : _currentInput + digit;
+            : raw + digit;
     }
 
     private void CommitOperator(string op)
@@ -112,8 +114,7 @@ public partial class MainPage : ContentPage
             _justEvaluated = false;
 
         _expression += _currentInput + NormalizeOperator(op);
-        History.Text = _expression;
-
+        _currentInput = "";
         _awaitingNextNumber = true;
     }
 
@@ -133,14 +134,58 @@ public partial class MainPage : ContentPage
         _awaitingNextNumber = false;
     }
 
+    //========================================================= Unary ops =========================================================//
+
     private void ToggleSign()
     {
         if (_currentInput == "0")
             return;
 
-        _currentInput = _currentInput.StartsWith("-")
-            ? _currentInput[1..]
-            : "-" + _currentInput;
+        if (_currentInput.StartsWith("(-") && _currentInput.EndsWith(")"))
+        {
+            _currentInput = _currentInput[2..^1];
+            PushUnaryHistory(_currentInput);
+        }
+        else
+        {
+            var raw = Unwrap(_currentInput);
+            _currentInput = $"(-{raw})";
+            PushUnaryHistory(_currentInput);
+        }
+    }
+
+    private void ApplyPercent()
+    {
+        var raw = Unwrap(_currentInput);
+        PushUnaryHistory($"{raw}%");
+        _currentInput = (double.Parse(raw) / 100).ToString();
+        _justEvaluated = true;
+    }
+
+    private void ApplyInverse()
+    {
+        var raw = Unwrap(_currentInput);
+        if (raw == "0")
+            throw new DivideByZeroException();
+
+        PushUnaryHistory($"1/({raw})");
+        _currentInput = (1 / double.Parse(raw)).ToString();
+        _justEvaluated = true;
+    }
+
+    private void PushUnaryHistory(string notation)
+    {
+        History.Text = _expression + notation;
+    }
+
+    //========================================================= Utils =========================================================//
+
+    private static string Unwrap(string value)
+    {
+        if (value.StartsWith("(-") && value.EndsWith(")"))
+            return value[2..^1];
+
+        return value;
     }
 
     private static string NormalizeOperator(string op) =>
@@ -166,6 +211,6 @@ public partial class MainPage : ContentPage
 
     private void UpdateDisplay()
     {
-        Display.Text = _currentInput;
+        Display.Text = _expression + _currentInput;
     }
 }

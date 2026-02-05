@@ -10,7 +10,11 @@
     <Grid Padding="16"
           RowDefinitions="*,Auto">
 
-        <!-- FLEXIBLE TOP SPACER (absorbs extra height) -->
+        <!-- 
+            FLEXIBLE TOP SPACER 
+            (absorbs extra height to allow consistent layout across different screens 
+            [effectively pushes the calculator toward bottom]) 
+        -->
         <Grid Row="0" />
 
         <!-- CALCULATOR BODY (keeps proportions) -->
@@ -20,7 +24,7 @@
             <!-- DISPLAY AREA -->
             <Grid Row="0"
                   Padding="0,16,0,8"
-                  RowDefinitions="Auto,Auto"
+                  RowDefinitions="Auto,Auto" 
                   VerticalOptions="End">
 
                 <!-- HISTORY -->
@@ -46,7 +50,7 @@
                   ColumnSpacing="6"
                   RowSpacing="6"
                   ColumnDefinitions="*,*,*,*"
-                  RowDefinitions="*,*,*,*,*">
+                  RowDefinitions="*,*,*,*,*">    <!-- "*,*,*,*,*" as: take all the available space [ "auto" would have been content-driven sizing ] -->
 
                 <!-- Row 1 -->
                 <controls:CalcButton Text="AC" Style="{StaticResource CalcFunctionButton}" Clicked="OnButtonClicked"/>

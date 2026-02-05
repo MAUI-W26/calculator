@@ -5,8 +5,8 @@ namespace Calculator;
 
 public partial class MainPage : ContentPage
 {
-    private readonly ExpressionEngine.ExpressionEngine _engine =
-        new ExpressionEngine.ExpressionEngine(new ExpressionEngine.Logging.Logger());
+    private readonly ExpressionEngine.Logging.Logger _logger;
+    private readonly ExpressionEngine.ExpressionEngine _engine;
 
     private string _currentInput = "0";
     private string _expression = "";
@@ -16,12 +16,19 @@ public partial class MainPage : ContentPage
     public MainPage()
     {
         InitializeComponent();
+
+        _logger = new ExpressionEngine.Logging.Logger();
+        _engine = new ExpressionEngine.ExpressionEngine(_logger);
+
         UpdateDisplay();
     }
 
-    void OnButtonClicked(object sender, EventArgs e)
+    void OnButtonClicked(object sender, EventArgs e) // INFO: this is the only event handler for all buttons
     {
-        var btn = (Button)sender;
+        if (sender is not Button) // safe guard -- very unlikely to happen
+            return;
+
+        var btn = (Button)sender;// downcast the sender to a Button
         var t = btn.Text;
 
         try
@@ -61,7 +68,7 @@ public partial class MainPage : ContentPage
                         _currentInput = "0.";
                         _awaitingNextNumber = false;
                     }
-                    else if (!Unwrap(_currentInput).Contains("."))
+                    else if (!Unwrap(_currentInput).Contains(".")) // prevent multiple decimals
                     {
                         _currentInput += ".";
                     }
@@ -72,12 +79,36 @@ public partial class MainPage : ContentPage
                     break;
             }
         }
-        catch
+        catch (LexicalException ex)
         {
+            _logger.Error(ex.ToString());
             Display.Text = "Error";
             Reset(keepDisplay: true);
             return;
         }
+        catch (ParseException ex)
+        {
+            _logger.Error(ex.ToString());
+            Display.Text = "Error";
+            Reset(keepDisplay: true);
+            return;
+        }
+        catch (EvaluationException ex)
+        {
+            _logger.Error(ex.ToString());
+            Display.Text = "Error";
+            Reset(keepDisplay: true);
+            return;
+        }
+        catch (Exception ex)
+        {
+            // truly unexpected bug
+            _logger.Error(ex.ToString());
+            Display.Text = "Error";
+            Reset(keepDisplay: true);
+            return;
+        }
+
 
         UpdateDisplay();
     }
@@ -103,12 +134,12 @@ public partial class MainPage : ContentPage
 
         var raw = Unwrap(_currentInput);
 
-        _currentInput = raw == "0"
+        _currentInput = raw == "0" // leading zero case - replace or concatenate
             ? digit
             : raw + digit;
     }
 
-    private void CommitOperator(string op)
+    private void CommitOperator(string op) // tells that the current number is finished and appends the operator
     {
         if (_justEvaluated)
             _justEvaluated = false;
@@ -120,7 +151,7 @@ public partial class MainPage : ContentPage
 
     private void EvaluateExpression()
     {
-        if (string.IsNullOrWhiteSpace(_expression))
+        if (string.IsNullOrWhiteSpace(_expression)) // safety check
             return;
 
         var fullExpression = _expression + _currentInput;
@@ -136,17 +167,17 @@ public partial class MainPage : ContentPage
 
     //========================================================= Unary ops =========================================================//
 
-    private void ToggleSign()
+    private void ToggleSign() // toggles the sign of the current input eg: 1 -> (-1), (-1) -> 1
     {
         if (_currentInput == "0")
             return;
 
         if (_currentInput.StartsWith("(-") && _currentInput.EndsWith(")"))
         {
-            _currentInput = _currentInput[2..^1];
+            _currentInput = _currentInput[2..^1]; // between the parentheses (second char to second last char)
             PushUnaryHistory(_currentInput);
         }
-        else
+        else // apply negative sign with parentheses
         {
             var raw = Unwrap(_currentInput);
             _currentInput = $"(-{raw})";
@@ -180,16 +211,16 @@ public partial class MainPage : ContentPage
 
     //========================================================= Utils =========================================================//
 
-    private static string Unwrap(string value)
+    private static string Unwrap(string value) // parentheses used to denote negative numbers
     {
         if (value.StartsWith("(-") && value.EndsWith(")"))
-            return value[2..^1];
+            return value[2..^1]; // between the parentheses (second char to second last char)
 
         return value;
     }
 
     private static string NormalizeOperator(string op) =>
-        op switch
+        op switch // convert to standard operators
         {
             "−" => "-",
             "×" => "*",
@@ -197,7 +228,7 @@ public partial class MainPage : ContentPage
             _ => op
         };
 
-    private void Reset(bool keepDisplay = false)
+    private void Reset(bool keepDisplay = false) // default to resetting everything
     {
         _currentInput = "0";
         _expression = "";
@@ -209,7 +240,7 @@ public partial class MainPage : ContentPage
             UpdateDisplay();
     }
 
-    private void UpdateDisplay()
+    private void UpdateDisplay() // concatenate expression and current input for display
     {
         Display.Text = _expression + _currentInput;
     }

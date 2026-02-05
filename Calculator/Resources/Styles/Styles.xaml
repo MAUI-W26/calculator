@@ -22,7 +22,7 @@
     <Style x:Key="CalcBaseButton" TargetType="Button">
         <Setter Property="FontSize" Value="24"/>
         <Setter Property="FontAttributes" Value="Bold"/>
-        <Setter Property="CornerRadius" Value="1000"/>
+        <Setter Property="CornerRadius" Value="1000"/> <!-- Perfect Circle shape (1000 as it's big enough to cap system restriction [ min (width, height) / 2 ]-->
         <Setter Property="Padding" Value="0"/>
         <Setter Property="BorderWidth" Value="0"/>
         <Setter Property="HorizontalOptions" Value="Fill"/>

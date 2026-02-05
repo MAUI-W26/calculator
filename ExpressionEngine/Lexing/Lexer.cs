@@ -23,7 +23,7 @@ namespace ExpressionEngine.Lexing
             _position = 0;
         }
 
-        public List<Token> Tokenize()
+        public List<Token> Tokenize() // NOTE: Lexeme is the raw input text; value is the parsed numeric representation
         {
             _logger.Info("Lexing started");
 
@@ -69,7 +69,8 @@ namespace ExpressionEngine.Lexing
 
             string lexeme = _input.Substring(start, _position - start);
 
-            if (!double.TryParse(lexeme, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
+            //Note: culture-invariant parsing for decimal point normalization
+            if (!double.TryParse(lexeme, NumberStyles.Float, CultureInfo.InvariantCulture, out double value)) 
                 throw new LexicalException($"Invalid number '{lexeme}'", start);
 
             return new Token(TokenType.NUMBER, lexeme, value, start);

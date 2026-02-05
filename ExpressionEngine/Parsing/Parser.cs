@@ -7,8 +7,9 @@ using System.Collections.Generic;
 namespace ExpressionEngine.Parsing
 {
     /// <summary>
-    /// Recursive-descent parser that builds an AST from tokens.
-    /// Implements operator precedence through grammar structure.
+    /// Top-down recursive-descent parser.
+    /// Consumes tokens sequentially and builds an AST by descending through grammar rules.
+    /// Operator precedence is enforced by method hierarchy (expression → term → unary → primary).
     /// </summary>
     public sealed class Parser
     {

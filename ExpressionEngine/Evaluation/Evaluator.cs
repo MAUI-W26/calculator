@@ -6,7 +6,8 @@ using ExpressionEngine.Logging;
 namespace ExpressionEngine.Evaluation
 {
     /// <summary>
-    /// Evaluates an AST using recursive tree walking.
+    /// Recursively evaluates an expression AST.
+    /// Traverses nodes depth-first and applies operators to produce the final numeric result.
     /// </summary>
     public sealed class Evaluator
     {
@@ -17,7 +18,7 @@ namespace ExpressionEngine.Evaluation
             _logger = logger;
         }
 
-        public double Evaluate(ExpressionNode node)
+        public double Evaluate(ExpressionNode node) 
         {
             _logger.Trace($"Evaluating node {node.GetType().Name}");
 

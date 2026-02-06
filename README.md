@@ -15,11 +15,12 @@ This guarantees deterministic behavior, correct operator precedence, and extensi
 
 # Screenshots
 
-![Screenshot 1](Screenshots/Screenshot 2026-02-06 080435.png)
-![Screenshot 2](Screenshots/Screenshot 2026-02-06 080441.png)
-![Screenshot 3](Screenshots/Screenshot 2026-02-06 080456.png)
-![Screenshot 4](Screenshots/Screenshot 2026-02-06 080521.png)
-![Screenshot 5](Screenshots/Screenshot 2026-02-06 080531.png)
+![Screenshot 1](Screenshots/Screenshot%202026-02-06%20080435.png)
+![Screenshot 2](Screenshots/Screenshot%202026-02-06%20080441.png)
+![Screenshot 3](Screenshots/Screenshot%202026-02-06%20080456.png)
+![Screenshot 4](Screenshots/Screenshot%202026-02-06%20080521.png)
+![Screenshot 5](Screenshots/Screenshot%202026-02-06%20080531.png)
+
 
 ------
 

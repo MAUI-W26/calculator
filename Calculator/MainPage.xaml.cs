@@ -109,7 +109,6 @@ public partial class MainPage : ContentPage
             return;
         }
 
-
         UpdateDisplay();
     }
 
@@ -158,7 +157,7 @@ public partial class MainPage : ContentPage
         var result = _engine.Evaluate(fullExpression);
 
         History.Text = fullExpression;
-        _currentInput = result.ToString();
+        _currentInput = NormalizeNumber(result); // ensure consistent internal representation
 
         _expression = "";
         _justEvaluated = true;
@@ -175,21 +174,20 @@ public partial class MainPage : ContentPage
         if (_currentInput.StartsWith("(-") && _currentInput.EndsWith(")"))
         {
             _currentInput = _currentInput[2..^1]; // between the parentheses (second char to second last char)
-            PushUnaryHistory(_currentInput);
         }
         else // apply negative sign with parentheses
         {
-            var raw = Unwrap(_currentInput);
-            _currentInput = $"(-{raw})";
-            PushUnaryHistory(_currentInput);
+            _currentInput = $"(-{_currentInput})";
         }
+
+        PushUnaryHistory(_currentInput);
     }
 
     private void ApplyPercent()
     {
         var raw = Unwrap(_currentInput);
         PushUnaryHistory($"{raw}%");
-        _currentInput = (double.Parse(raw) / 100).ToString();
+        _currentInput = NormalizeNumber(double.Parse(raw) / 100);
         _justEvaluated = true;
     }
 
@@ -200,7 +198,7 @@ public partial class MainPage : ContentPage
             throw new DivideByZeroException();
 
         PushUnaryHistory($"1/({raw})");
-        _currentInput = (1 / double.Parse(raw)).ToString();
+        _currentInput = NormalizeNumber(1 / double.Parse(raw));
         _justEvaluated = true;
     }
 
@@ -227,6 +225,13 @@ public partial class MainPage : ContentPage
             "÷" => "/",
             _ => op
         };
+
+    private static string NormalizeNumber(double value) // ensures consistent internal representation of negative numbers
+    {
+        return value < 0
+            ? $"({value})"
+            : value.ToString();
+    }
 
     private void Reset(bool keepDisplay = false) // default to resetting everything
     {
